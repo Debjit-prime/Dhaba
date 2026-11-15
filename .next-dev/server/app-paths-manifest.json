@@ -1,7 +1,10 @@
 {
+  "/(customer)/menu/page": "app/(customer)/menu/page.js",
   "/page": "app/page.js",
   "/(kitchen)/kds/page": "app/(kitchen)/kds/page.js",
   "/(admin)/admin/page": "app/(admin)/admin/page.js",
-  "/(customer)/menu/page": "app/(customer)/menu/page.js",
-  "/(valet)/valet/page": "app/(valet)/valet/page.js"
+  "/api/menu/route": "app/api/menu/route.js",
+  "/(valet)/valet/page": "app/(valet)/valet/page.js",
+  "/api/valet/route": "app/api/valet/route.js",
+  "/api/orders/route": "app/api/orders/route.js"
 }

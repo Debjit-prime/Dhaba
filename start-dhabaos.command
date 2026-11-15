@@ -1,67 +1,93 @@
 #!/bin/bash
 # ==============================================================================
-# DhabaOS - One-Click Local Hosting Launcher
+# DhabaOS - One-Click Local Hosting Launcher (macOS)
 # Double-click this file in macOS Finder or run `./start-dhabaos.command`
 # ==============================================================================
 
-# Ensure script runs in the project directory regardless of where it's called from
+set -e
 cd "$(dirname "$0")"
 
 echo ""
 echo "=========================================================="
-echo "   🥘  DhabaOS - Restaurant Management System Launcher   "
+echo "   DhabaOS - Restaurant Management System Launcher"
 echo "=========================================================="
 echo ""
 
 # 1. Check for Node.js
 if ! command -v node &> /dev/null; then
-    echo "❌ Node.js is not found on your system."
-    echo "Please download and install Node.js from: https://nodejs.org"
-    read -p "Press Enter to exit..."
+    echo "Node.js is not found on your system."
+    echo "Please download and install Node.js (LTS) from: https://nodejs.org"
+    read -p "Press Enter to exit..." || true
     exit 1
 fi
 
-NODE_VERSION=$(node -v)
-echo "✅ Node.js detected: $NODE_VERSION"
+echo "Node.js detected: $(node -v)"
 
-# 2. Check and Install Dependencies if needed
-if [ ! -d "node_modules" ]; then
-    echo "📦 Dependencies missing. Running npm install..."
+# 2. Install dependencies if missing
+if [ ! -d "node_modules" ] || [ ! -d "node_modules/@prisma/client" ]; then
+    echo "Dependencies missing. Running npm install..."
     npm install
-    if [ $? -ne 0 ]; then
-        echo "❌ npm install failed. Please check your internet connection."
-        read -p "Press Enter to exit..."
-        exit 1
-    fi
 fi
 
-# 3. Ensure Environment File exists
+# 3. Ensure .env exists and has DATABASE_URL (without forcing NODE_ENV)
 if [ ! -f ".env" ]; then
-    echo "📝 Creating default local .env file..."
+    echo "Creating default local .env file..."
     cat <<EOT > .env
-DATABASE_URL="file:./dev.db"
-NEXT_PUBLIC_APP_URL="http://localhost:3000"
-NODE_ENV="development"
+DATABASE_URL=file:./dev.db
+NEXT_PUBLIC_APP_URL=http://localhost:3000
 EOT
+elif ! grep -q '^DATABASE_URL=' .env; then
+    echo "Adding DATABASE_URL to .env..."
+    printf '\nDATABASE_URL=file:./dev.db\n' >> .env
 fi
 
-# 4. Ensure Local SQLite Database is synced and seeded
-if [ ! -f "dev.db" ] && [ ! -f "prisma/dev.db" ]; then
-    echo "🗄️ Initializing and seeding local Dhaba database..."
-    npm run db:push
+# 4. Generate Prisma client for macOS and sync schema
+echo "Syncing Prisma client & SQLite schema..."
+npm run db:generate
+npm run db:push
+
+# 5. Seed database automatically if Menu, Tandoor, Tables (1-20), Valet, or Orders are empty
+NEEDS_SEED=$(node -e "
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
+(async () => {
+  try {
+    const [cats, items, tandoorItems, tables, orders, valet] = await Promise.all([
+      prisma.category.count(),
+      prisma.menuItem.count(),
+      prisma.menuItem.count({ where: { category: { slug: 'tandoor' } } }),
+      prisma.table.count(),
+      prisma.order.count(),
+      prisma.valetRequest.count(),
+    ]);
+    if (cats === 0 || items === 0 || tandoorItems === 0 || tables < 20 || (orders === 0 && valet === 0)) {
+      console.log('yes');
+    } else {
+      console.log('no');
+    }
+  } catch (e) {
+    console.log('yes');
+  } finally {
+    await prisma.\$disconnect();
+  }
+})();
+")
+
+if [ "$NEEDS_SEED" = "yes" ]; then
+    echo "Seeding DhabaOS database (Menu, Tandoor, 20 Tables, KDS, Valet, Analytics)..."
     npm run db:seed
+else
+    echo "Database ready and populated."
 fi
 
 echo ""
 echo "=========================================================="
-echo "🚀 DhabaOS is starting up locally!"
-echo "   Opening http://localhost:3000 in your browser..."
-echo "   Press Ctrl + C in this window to stop the server."
+echo "DhabaOS is starting up locally!"
+echo "Opening http://localhost:3000 in your browser..."
+echo "Press Ctrl + C in this window to stop the server."
 echo "=========================================================="
 echo ""
 
-# 5. Automatically open the default browser after 2 seconds
-(sleep 2 && open "http://localhost:3000") &
+(sleep 3 && open "http://localhost:3000" 2>/dev/null || true) &
 
-# 6. Start the local server
 npm run dev
