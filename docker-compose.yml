@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  dhabaos:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=file:./dev.db
+      - NEXT_PUBLIC_APP_URL=http://localhost:3000
+      - NODE_ENV=production
+    volumes:
+      - ./dev.db:/app/dev.db
+    restart: unless-stopped

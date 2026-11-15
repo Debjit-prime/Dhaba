@@ -1,0 +1,149 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String?
+  name         String
+  role         String    @default("CUSTOMER") // "CUSTOMER" | "KITCHEN_STAFF" | "VALET_STAFF" | "ADMIN"
+  avatarUrl    String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Table {
+  id             String         @id @default(cuid())
+  number         String         @unique // e.g. "T-12", "T-04"
+  name           String?        // e.g. "Highway Courtyard 12"
+  capacity       Int            @default(4)
+  qrCode         String?        @unique
+  status         String         @default("AVAILABLE") // "AVAILABLE" | "OCCUPIED" | "RESERVED"
+  orders         Order[]
+  valetRequests  ValetRequest[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+model Category {
+  id           String     @id @default(cuid())
+  name         String     @unique // e.g. "Starters", "Mains", "Tandoor", "Breads", "Beverages"
+  slug         String     @unique
+  displayOrder Int        @default(0)
+  items        MenuItem[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model MenuItem {
+  id              String      @id @default(cuid())
+  name            String
+  description     String?
+  price           Float       // INR price
+  imageUrl        String?
+  isVeg           Boolean     @default(true)
+  isAvailable     Boolean     @default(true)
+  prepTimeMinutes Int         @default(15)
+  categoryId      String
+  category        Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  orderItems      OrderItem[]
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+model Order {
+  id            String         @id @default(cuid())
+  orderNumber   String         @unique // e.g. "T-12", "S-112", "Z-842"
+  source        String         @default("DINE_IN") // "DINE_IN" | "SWIGGY" | "ZOMATO"
+  status        String         @default("PENDING") // "PENDING" | "PREPARING" | "READY" | "COMPLETED" | "CANCELLED"
+  tableId       String?
+  table         Table?         @relation(fields: [tableId], references: [id], onDelete: SetNull)
+  totalAmount   Float          @default(0)
+  paymentStatus String         @default("PENDING") // "PENDING" | "PAID" | "REFUNDED"
+  paymentMethod String?        // e.g. "UPI", "CARD", "CASH"
+  customerName  String?
+  customerPhone String?
+  notes         String?
+  items         OrderItem[]
+  valetRequests ValetRequest[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model OrderItem {
+  id                 String    @id @default(cuid())
+  orderId            String
+  order              Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  menuItemId         String
+  menuItem           MenuItem  @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+  quantity           Int       @default(1)
+  unitPrice          Float
+  customInstructions String?   // e.g. "No butter", "Spicy"
+  isPrepared         Boolean   @default(false)
+  createdAt          DateTime  @default(now())
+}
+
+model ValetRequest {
+  id            String        @id @default(cuid())
+  ticketNumber  String        @unique // e.g. "#V-8492", "#V-8480"
+  vehicleModel  String        // e.g. "White Toyota Innova", "Black Mahindra Thar"
+  vehicleNumber String        // e.g. "MH-12-AB-1234"
+  parkingSpot   String?       // e.g. "Zone B Parking", "Valet Lot 2"
+  guestName     String?       // e.g. "VIP Guest"
+  tableId       String?
+  table         Table?        @relation(fields: [tableId], references: [id], onDelete: SetNull)
+  orderId       String?
+  order         Order?        @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  status        String        @default("PARKED") // "PARKED" | "REQUESTED" | "IN_PROGRESS" | "DELIVERED" | "CANCELLED"
+  priority      String        @default("LOW") // "LOW" | "MEDIUM" | "HIGH"
+  estimatedMins Int           @default(4)
+  requestedAt   DateTime?
+  completedAt   DateTime?
+  notes         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model Ingredient {
+  id           String       @id @default(cuid())
+  name         String       @unique // e.g. "Refined Flour (Maida)", "Fresh Paneer"
+  unit         String       @default("kg") // "kg", "L", "units"
+  currentStock Float        @default(0)
+  maxCapacity  Float        @default(100)
+  reorderLevel Float        @default(20)
+  costPerUnit  Float        @default(0)
+  batches      StockBatch[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+}
+
+model StockBatch {
+  id           String     @id @default(cuid())
+  ingredientId String
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+  batchNumber  String
+  quantity     Float
+  supplier     String?
+  receivedAt   DateTime   @default(now())
+  expiresAt    DateTime
+  notes        String?
+  createdAt    DateTime   @default(now())
+}
+
+model FootfallRecord {
+  id                String   @id @default(cuid())
+  date              DateTime @unique
+  dayOfWeek         String   // "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"
+  actualFootfall    Int
+  predictedFootfall Int
+  revenue           Float
+  weather           String?  // "Sunny", "Rainy", "Pleasant"
+  notes             String?
+  createdAt         DateTime @default(now())
+}
