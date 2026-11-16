@@ -43,7 +43,7 @@ export default function PortalSwitcherPage() {
     {
       id: 'customer',
       title: 'Customer Portal',
-      description: 'Browse menus, place orders, and manage your account seamlessly.',
+      description: 'Select your table, browse dishes, place orders, and request valet retrieval.',
       icon: 'restaurant_menu',
       href: '/menu?table=12',
       badgeBg: 'bg-ink',
@@ -70,7 +70,7 @@ export default function PortalSwitcherPage() {
     {
       id: 'admin',
       title: 'Admin Dashboard',
-      description: 'View analytics, manage inventory, adjust menus, and configure settings.',
+      description: 'Track AI footfall forecasts, monitor live inventory depletion, and restock supplies.',
       icon: 'monitoring',
       href: '/admin',
       badgeBg: 'bg-bowl-rim',
@@ -170,7 +170,7 @@ export default function PortalSwitcherPage() {
       {/* Footer */}
       <footer className="relative z-10 py-6 text-center border-t border-outline-variant mt-auto bg-[#fffaf3]/75 dark:bg-[#120c09]/85 backdrop-blur-md">
         <p className="text-[13px] font-medium text-muted">
-          © 2024 DhabaOS. All rights reserved.
+          © 2026 DhabaOS. All rights reserved.
         </p>
       </footer>
     </div>

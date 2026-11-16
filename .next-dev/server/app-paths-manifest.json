@@ -1,6 +1,3 @@
 {
-  "/api/realtime/route": "app/api/realtime/route.js",
-  "/api/valet/[id]/status/route": "app/api/valet/[id]/status/route.js",
-  "/(customer)/menu/page": "app/(customer)/menu/page.js",
-  "/api/menu/route": "app/api/menu/route.js"
+  "/page": "app/page.js"
 }

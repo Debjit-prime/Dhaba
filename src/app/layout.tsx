@@ -15,7 +15,12 @@ const interTight = Inter_Tight({
 export const metadata: Metadata = {
   title: 'DhabaOS — Restaurant Management System',
   description:
-    'Dual-portal Restaurant Management System for high-volume dhabas, with Customer Ordering, Kitchen Display System (KDS), Valet Queue, and Admin AI Inventory & Forecasting.',
+    'Unified four-portal Restaurant Management System for high-volume dhabas, with Customer Ordering, Kitchen Display System (KDS), Valet Queue, and Admin AI Inventory & Forecasting.',
+  openGraph: {
+    title: 'DhabaOS — Restaurant Management System',
+    description:
+      'Unified four-portal Restaurant Management System for high-volume dhabas, with Customer Ordering, Kitchen Display System (KDS), Valet Queue, and Admin AI Inventory & Forecasting.',
+  },
   icons: {
     icon: '/favicon.ico',
   },

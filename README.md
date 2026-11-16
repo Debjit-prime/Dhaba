@@ -153,7 +153,9 @@ The forecasting logic lives in [`src/lib/forecasting.ts`](./src/lib/forecasting.
 │   ├── schema.prisma              # SQLite Prisma schema
 │   ├── schema.postgresql.prisma   # Optional PostgreSQL schema
 │   └── seed.ts                    # Menu, Tandoor, 20 tables, KDS, valet, inventory & footfall seed
-├── public/assets/aistudio/        # Light & dark ambient background imagery
+├── public/assets/
+│   ├── aistudio/                  # Light & dark ambient background imagery
+│   └── menu/                      # Local menu item imagery (Sweet Lassi)
 ├── src/
 │   ├── app/
 │   │   ├── page.tsx               # Portal Switcher (/)
