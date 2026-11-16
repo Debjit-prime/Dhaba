@@ -369,6 +369,7 @@ function CustomerMenuContent() {
                               'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=400&q=80'
                             }
                             alt={item.name}
+                            referrerPolicy="no-referrer"
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                           />
                           <div className="absolute top-1.5 right-1.5 bg-white/95 rounded-sm p-[2px] flex items-center justify-center shadow-sm">

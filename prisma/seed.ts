@@ -271,7 +271,7 @@ async function main() {
       name: 'Sweet Lassi',
       description: 'Traditional creamy yogurt churned with sugar, topped with rich malai and pistachios',
       price: 90,
-      imageUrl: 'https://images.unsplash.com/photo-1571006687081-309121a97d9e?auto=format&fit=crop&w=400&q=80',
+      imageUrl: '/assets/menu/sweet_lassi.jpg',
       isVeg: true,
       categoryId: beverages.id,
       prepTimeMinutes: 4,
