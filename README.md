@@ -273,7 +273,7 @@ NEXT_PUBLIC_APP_URL=https://dhaba-qav3.onrender.com
 
 ## 🤖 Development Disclosure
 
-This platform was built with AI-assisted rapid engineering workflows, using **Google Antigravity** for implementation, while the product concept, domain flows, and design direction were defined by the author.
+This platform was built with AI-assisted rapid engineering workflows, using **Google Antigravity** and **Google AI Studio** for implementation, while the product concept, domain flows, and design direction were defined by the author.
 
 ---
 
