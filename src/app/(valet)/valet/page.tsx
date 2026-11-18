@@ -121,7 +121,7 @@ export default function ValetSystemPage() {
         }
       }
     }
-  }, loadValetQueue);
+  });
 
   // Customer: Request Car
   const handleCustomerRequestCar = async () => {
