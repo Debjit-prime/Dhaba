@@ -7,7 +7,10 @@ export const dynamic = 'force-dynamic';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
-    const source = (body.source as string) || (Math.random() > 0.5 ? 'SWIGGY' : 'ZOMATO');
+    const requestedSource =
+      body.source === 'SWIGGY' || body.source === 'ZOMATO' ? body.source : null;
+    const source: 'SWIGGY' | 'ZOMATO' =
+      requestedSource ?? (Math.random() > 0.5 ? 'SWIGGY' : 'ZOMATO');
 
     // Fetch all available menu items
     const menuItems = await prisma.menuItem.findMany();

@@ -6,6 +6,24 @@ export const dynamic = 'force-dynamic';
 export async function GET(req: NextRequest) {
   const encoder = new TextEncoder();
 
+  if (process.env.VERCEL === '1') {
+    const serverlessStream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(
+          encoder.encode(`event: mode\ndata: ${JSON.stringify({ serverless: true })}\n\n`)
+        );
+        controller.close();
+      },
+    });
+
+    return new Response(serverlessStream, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache, no-transform',
+      },
+    });
+  }
+
   const stream = new ReadableStream({
     start(controller) {
       // Send initial heartbeat

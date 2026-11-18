@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, Suspense } from 'react';
+import { useState, useEffect, useMemo, useCallback, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ChevronRight, ChevronDown } from 'lucide-react';
@@ -95,17 +95,46 @@ function CustomerMenuContent() {
     loadMenu();
   }, []);
 
-  // Listen for live updates to the placed order
-  useRealtimeSubscription(['order:status_changed', 'valet:status_changed'], (type, data) => {
-    if (type === 'order:status_changed' && placedOrder && data.id === placedOrder.id) {
-      setPlacedOrder(data);
-    }
-    if (type === 'valet:status_changed' && isValetRequested) {
-      if (data.status === 'DELIVERED') {
-        setValetEtaMins(0);
+  const refreshLiveStatus = useCallback(async () => {
+    try {
+      if (placedOrder && placedOrder.status !== 'COMPLETED') {
+        const res = await fetch('/api/orders');
+        const json = await res.json();
+        if (json.success) {
+          const latest = json.data.find((o: any) => o.id === placedOrder.id);
+          if (latest) setPlacedOrder(latest);
+        }
       }
+      if (isValetRequested && valetEtaMins > 0) {
+        const res = await fetch('/api/valet?ticketNumber=%23V-8492');
+        const json = await res.json();
+        const latestValet = json.success ? json.data?.[0] : null;
+        if (latestValet?.status === 'DELIVERED') {
+          setValetEtaMins(0);
+        } else if (latestValet?.estimatedMins !== undefined) {
+          setValetEtaMins(latestValet.estimatedMins);
+        }
+      }
+    } catch {
+      // Ignore transient polling errors
     }
-  });
+  }, [placedOrder, isValetRequested, valetEtaMins]);
+
+  // Listen for live updates to the placed order
+  useRealtimeSubscription(
+    ['order:status_changed', 'valet:status_changed'],
+    (type, data) => {
+      if (type === 'order:status_changed' && placedOrder && data.id === placedOrder.id) {
+        setPlacedOrder(data);
+      }
+      if (type === 'valet:status_changed' && isValetRequested) {
+        if (data.status === 'DELIVERED') {
+          setValetEtaMins(0);
+        }
+      }
+    },
+    refreshLiveStatus
+  );
 
   const cartItemsArray = useMemo(() => Object.values(cart), [cart]);
   const totalItemsCount = useMemo(

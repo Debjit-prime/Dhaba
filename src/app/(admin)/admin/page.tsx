@@ -90,7 +90,9 @@ export default function AdminDashboardPage() {
     ['order:created', 'order:status_changed', 'inventory:updated'],
     () => {
       loadDashboardData();
-    }
+    },
+    loadDashboardData,
+    6000
   );
 
   const handleRestockSubmit = async (e: React.FormEvent) => {

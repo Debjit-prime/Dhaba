@@ -98,7 +98,8 @@ export default function KitchenKDSPage() {
           })
         );
       }
-    }
+    },
+    loadOrders
   );
 
   // Status transition handlers
